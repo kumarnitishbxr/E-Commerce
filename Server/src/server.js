@@ -2,7 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import main from "./config/db.js";           
-import redisClient from "./config/redis.js";  
+import redisClient from "./config/Redis.js";
+import authRoute from "./routes/auth.routes.js"; 
+import addressRouter from "./routes/address.routes.js";
 
 dotenv.config();
 
@@ -10,6 +12,9 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use('/auth', authRoute);
+app.use('/address', addressRouter)
 
 const InitializeConnection = async () => {
   try {
