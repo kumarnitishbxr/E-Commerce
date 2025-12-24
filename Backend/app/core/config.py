@@ -14,14 +14,13 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
 
     # Redis
-    REDIS_URL: str = "rediss://default:sdvvKi5XmANTDTCO0vsbhKrmRBbh1apT@redis-18253.c325.us-east-1-4.ec2.redns.redis-cloud.com:18253"
-    
+    REDIS_URL: str = "redis://default:mTwwflQ4yqRLog1CR40cEmxs8PG1SLDg@redis-14723.c81.us-east-1-2.ec2.cloud.redislabs.com:14723"
     # JWT
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
-    
+    JWT_ISSUER : str = "e-commerce-auth"
     # Security
     BCRYPT_ROUNDS: int = 12
     

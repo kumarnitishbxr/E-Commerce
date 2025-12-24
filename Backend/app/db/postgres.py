@@ -5,12 +5,11 @@ from app.core.config import settings
 engine: AsyncEngine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
-    future=True,
     pool_pre_ping=True,
 )
 
 AsyncSessionLocal = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession
+    bind=engine, expire_on_commit=False, class_=AsyncSession, autoflush=False, autocommit=False
 )
 
 # Dependency

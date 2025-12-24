@@ -1,46 +1,48 @@
-# import uvicorn
-# from fastapi import FastAPI
-# from app.core.config import settings
-# from .api.api_v1 import api_router
-# from app.db.postgres import engine
-# from app.db.base import Base
-# import asyncio
-
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from app.core.config import settings
-from .api.api_v1 import api_router
-from app.db.postgres import engine
-from sqlalchemy import text
-from app.db.base import Base
+from app.api.api_v1 import api_router
+from app.db.redis import init_redis, close_redis
+from app.core.exceptions import AppException
+from app.core.logging import logger
+from fastapi.responses import JSONResponse
+from fastapi import Request
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Starting Sahu Mart backend...")
+    await init_redis()
+    logger.info("Redis connected")
+    logger.info("Database schema managed by Alembic")
+    yield
+    logger.info("Shutting down Sahu Mart backend...")
+    await close_redis()
+    logger.info("Redis connection closed")
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title=settings.APP_NAME, debug=settings.DEBUG)
+    app = FastAPI(
+        title=settings.APP_NAME,
+        debug=settings.DEBUG,
+        lifespan=lifespan,
+    )
+
     app.include_router(api_router, prefix=settings.API_V1_STR)
+
+    @app.exception_handler(AppException)
+    async def app_exception_handler(request: Request, exc: AppException):
+        return JSONResponse(
+            status_code=400,
+            content={
+                "success": False,
+                "error": {
+                    "code": exc.code,
+                    "message": exc.message,
+                },
+            },
+        )
+
     return app
 
+
 app = create_app()
-
-# async def init_models():
-#     try:
-#         async with engine.begin() as conn:
-#             await conn.run_sync(Base.metadata.create_all)
-#         print("DB Connected")
-#     except Exception as e:
-#         print("DB Connection failed")
-
-@app.on_event("startup")
-async def startup():
-    print("⏳ Initializing database...")
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print("✅ Users & other tables created (if not exist)")
-    print("✅ DB Connected")
-
-
-        
-# if __name__ == "__main__":
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(init_models())
-#     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
-    

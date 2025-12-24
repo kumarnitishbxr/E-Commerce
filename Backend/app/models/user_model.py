@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Enum, DateTime, func, Text
+from sqlalchemy import (Column, Integer, String, Boolean, Enum, DateTime, func)
 from sqlalchemy.dialects.postgresql import JSONB
 from app.db.base import Base
 import enum
@@ -20,8 +20,7 @@ class User(Base):
     role = Column(Enum(UserRole), nullable=False, default=UserRole.buyer)
     wallet_balance = Column(Integer, default=0)
     is_blocked = Column(Boolean, default=False)
-    refresh_token = Column(Text, nullable=True)
-    meta = Column(JSONB, nullable=True)
+    user_metadata = Column(JSONB, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
     
